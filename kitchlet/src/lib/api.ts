@@ -1,0 +1,138 @@
+import type { ImagePickerAsset } from 'expo-image-picker';
+import { Platform } from 'react-native';
+
+import { API_URL } from '@/config';
+
+export const CATEGORIES = [
+  'Cookware',
+  'Bakeware',
+  'Cutlery',
+  'Prep Tools',
+  'Utensils',
+  'Appliances',
+  'Storage',
+  'Serveware',
+] as const;
+
+export type Category = (typeof CATEGORIES)[number];
+
+export type Utensil = {
+  id: number;
+  name: string;
+  category: Category;
+  material: string | null;
+  quantity: number;
+  description: string | null;
+  image_url: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type UtensilInput = {
+  name: string;
+  category: Category;
+  material: string;
+  quantity: number;
+  description: string;
+};
+
+/** What to do with the photo when saving: leave it, remove it, or upload a new one. */
+export type ImageChange =
+  | { type: 'keep' }
+  | { type: 'remove' }
+  | { type: 'upload'; asset: ImagePickerAsset };
+
+export type FieldErrors = Partial<Record<keyof UtensilInput | 'image', string>>;
+
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly fieldErrors: FieldErrors = {},
+  ) {
+    super(message);
+  }
+}
+
+async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 20_000);
+
+  let response: Response;
+  try {
+    response = await fetch(`${API_URL}${path}`, {
+      ...init,
+      headers: { Accept: 'application/json', ...init.headers },
+      signal: controller.signal,
+    });
+  } catch {
+    throw new ApiError(`Can't reach the Kitchlet API at ${API_URL}. Is XAMPP (Apache + MySQL) running?`, 0);
+  } finally {
+    clearTimeout(timeout);
+  }
+
+  const body = await response.json().catch(() => null);
+  if (!response.ok) {
+    throw new ApiError(body?.error ?? `Request failed (${response.status}).`, response.status, body?.errors ?? {});
+  }
+  return body as T;
+}
+
+function jsonInit(method: string, payload: unknown): RequestInit {
+  return {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  };
+}
+
+async function toFormData(input: UtensilInput, asset: ImagePickerAsset) {
+  const form = new FormData();
+  for (const [key, value] of Object.entries(input)) {
+    form.append(key, String(value));
+  }
+
+  const name = asset.fileName ?? `utensil-${Date.now()}.jpg`;
+  if (Platform.OS === 'web') {
+    const blob = asset.file ?? (await (await fetch(asset.uri)).blob());
+    form.append('image', blob, name);
+  } else {
+    // React Native's FormData uploads a file from its local URI.
+    form.append('image', { uri: asset.uri, name, type: asset.mimeType ?? 'image/jpeg' } as unknown as Blob);
+  }
+  return form;
+}
+
+export async function listUtensils() {
+  const { data } = await request<{ data: Utensil[] }>('/utensils');
+  return data;
+}
+
+export async function getUtensil(id: number) {
+  const { data } = await request<{ data: Utensil }>(`/utensils/${id}`);
+  return data;
+}
+
+export async function createUtensil(input: UtensilInput, image: ImageChange) {
+  const init: RequestInit =
+    image.type === 'upload'
+      ? { method: 'POST', body: await toFormData(input, image.asset) }
+      : jsonInit('POST', input);
+  const { data } = await request<{ data: Utensil }>('/utensils', init);
+  return data;
+}
+
+export async function updateUtensil(id: number, input: UtensilInput, image: ImageChange) {
+  // PHP only parses multipart bodies on POST, so photo uploads use POST /utensils/{id};
+  // plain edits use a regular PUT with JSON.
+  const init: RequestInit =
+    image.type === 'upload'
+      ? { method: 'POST', body: await toFormData(input, image.asset) }
+      : jsonInit('PUT', { ...input, remove_image: image.type === 'remove' });
+  const { data } = await request<{ data: Utensil }>(`/utensils/${id}`, init);
+  return data;
+}
+
+export async function deleteUtensil(id: number) {
+  await request(`/utensils/${id}`, { method: 'DELETE' });
+}
