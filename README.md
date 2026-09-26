@@ -77,3 +77,28 @@ EXPO_PUBLIC_API_URL=http://192.168.x.x/Kitchen-Utensils/api
 Until credentials are set, the app shows a friendly "Connect Spotify" card instead.
 
 > **Note:** the app uses Spotify's Client Credentials flow directly from the app, so the client secret ends up inside the app bundle. That's fine for a class project or demo, but for a public release move the token request into the PHP API so the secret stays on the server.
+
+## 4. Deploy the web app to Vercel
+
+[`vercel.json`](vercel.json) at the repo root configures the build (Framework Preset **Other**, i.e. `"framework": null`):
+
+| Setting | Value |
+| --- | --- |
+| Install Command | `cd kitchlet && npm ci` |
+| Build Command | `cd kitchlet && npx expo export --platform web --clear` |
+| Output Directory | `kitchlet/dist` |
+| Rewrites | every path → `/` (so links like `/utensil/5` work on refresh) |
+
+On vercel.com: **Add New → Project**, import this repository, and leave **Root Directory** as the repo root (`./`). `vercel.json` overrides the rest.
+
+Add these under **Settings → Environment Variables** (they are baked in at build time, so redeploy after changing them):
+
+| Variable | Required | Notes |
+| --- | --- | --- |
+| `EXPO_PUBLIC_API_URL` | Yes | Public **https://** URL of the PHP API, e.g. `https://your-api-host/Kitchen-Utensils/api` |
+| `EXPO_PUBLIC_SPOTIFY_CLIENT_ID` | For music | |
+| `EXPO_PUBLIC_SPOTIFY_CLIENT_SECRET` | For music | |
+| `EXPO_PUBLIC_SPOTIFY_TRACK_ID` | For music | Featured song ID or link |
+
+**Vercel only hosts the app, not the PHP API or MySQL** (`api/` is excluded via [`.vercelignore`](.vercelignore)). The API must be reachable over HTTPS from the internet, because browsers block `http://` requests from an `https://` page. Options: a PHP + MySQL host with SSL, or keep XAMPP running and expose it with a tunnel such as Cloudflare Tunnel or ngrok, then use that `https://` address as `EXPO_PUBLIC_API_URL`. If it's missing or wrong, the app shows a message explaining which.
+

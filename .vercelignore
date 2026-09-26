@@ -1,0 +1,3 @@
+# Vercel only hosts the Expo web build (kitchlet/). The PHP API runs elsewhere (XAMPP or a PHP host),
+# and a root-level api/ folder would otherwise be picked up as Vercel Functions.
+/api

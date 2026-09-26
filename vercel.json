@@ -1,0 +1,14 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "cd kitchlet && npm ci",
+  "buildCommand": "cd kitchlet && npx expo export --platform web --clear",
+  "outputDirectory": "kitchlet/dist",
+  "cleanUrls": true,
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "destination": "/"
+    }
+  ]
+}

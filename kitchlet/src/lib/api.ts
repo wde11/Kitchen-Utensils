@@ -66,7 +66,7 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
       signal: controller.signal,
     });
   } catch {
-    throw new ApiError(`Can't reach the Kitchlet API at ${API_URL}. Is XAMPP (Apache + MySQL) running?`, 0);
+    throw new ApiError(unreachableMessage(), 0);
   } finally {
     clearTimeout(timeout);
   }
@@ -75,7 +75,19 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!response.ok) {
     throw new ApiError(body?.error ?? `Request failed (${response.status}).`, response.status, body?.errors ?? {});
   }
+  if (body === null) {
+    // e.g. a static host answering with its index.html because EXPO_PUBLIC_API_URL isn't set.
+    throw new ApiError(`${API_URL} didn't respond like the Kitchlet API. Check EXPO_PUBLIC_API_URL.`, response.status);
+  }
   return body as T;
+}
+
+function unreachableMessage() {
+  const pageIsHttps = Platform.OS === 'web' && typeof window !== 'undefined' && window.location.protocol === 'https:';
+  if (pageIsHttps && API_URL.startsWith('http:')) {
+    return `This site uses HTTPS, so the Kitchlet API must too. Set EXPO_PUBLIC_API_URL to an https:// address (currently ${API_URL}).`;
+  }
+  return `Can't reach the Kitchlet API at ${API_URL}. Is XAMPP (Apache + MySQL) running?`;
 }
 
 function jsonInit(method: string, payload: unknown): RequestInit {
