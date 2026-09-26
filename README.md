@@ -1,4 +1,9 @@
-# Kitchlet
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/kitchlet-logo-white.png">
+    <img src="docs/kitchlet-logo.png" alt="Kitchlet" width="420">
+  </picture>
+</p>
 
 A mobile app for cataloguing your kitchen utensils — with photos — plus a Spotify-powered "cooking soundtrack".
 
