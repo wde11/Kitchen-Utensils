@@ -133,6 +133,13 @@ export async function searchTracks(query: string): Promise<SpotifyTrack[]> {
   return (body.tracks?.items ?? []).filter((t): t is RawTrack => !!t).map(toTrack);
 }
 
+/** Spotify's embeddable player: https://developer.spotify.com/documentation/embeds */
+export const SPOTIFY_EMBED_HEIGHT = 152;
+
+export function embedUrl(trackId: string) {
+  return `https://open.spotify.com/embed/track/${trackId}?utm_source=generator`;
+}
+
 export function formatDuration(ms: number) {
   const totalSeconds = Math.round(ms / 1000);
   return `${Math.floor(totalSeconds / 60)}:${String(totalSeconds % 60).padStart(2, '0')}`;

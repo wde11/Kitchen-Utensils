@@ -4,6 +4,7 @@ import { ActivityIndicator, Linking, Platform, Pressable, StyleSheet, View } fro
 
 import { Button } from '@/components/button';
 import { Icon } from '@/components/icon';
+import { SpotifyPlayer } from '@/components/spotify-player';
 import { ThemedText } from '@/components/themed-text';
 import { SPOTIFY } from '@/config';
 import { Radius, Spacing } from '@/constants/theme';
@@ -97,13 +98,17 @@ export function TrackHero({ track, label }: { track: SpotifyTrack; label: string
         </ThemedText>
         <Pressable
           accessibilityRole="link"
+          hitSlop={8}
           onPress={() => Linking.openURL(track.spotifyUrl)}
-          style={({ pressed }) => [styles.spotifyButton, { backgroundColor: theme.spotify }, pressed && { opacity: 0.85 }]}>
-          <Icon name="external" size={16} color="#000000" weight="semibold" />
-          <ThemedText type="smallBold" style={{ color: '#000000' }}>
-            Play on Spotify
+          style={({ pressed }) => [styles.openLink, pressed && { opacity: 0.6 }]}>
+          <ThemedText type="smallBold" themeColor="tint">
+            Open in Spotify
           </ThemedText>
+          <Icon name="external" size={14} color={theme.tint} weight="semibold" />
         </Pressable>
+      </View>
+      <View style={styles.player}>
+        <SpotifyPlayer key={track.id} trackId={track.id} />
       </View>
     </View>
   );
@@ -224,15 +229,15 @@ const styles = StyleSheet.create({
     gap: Spacing.one,
     justifyContent: 'flex-end',
   },
-  spotifyButton: {
+  openLink: {
     flexDirection: 'row',
     alignItems: 'center',
     alignSelf: 'flex-start',
-    gap: Spacing.two,
-    paddingHorizontal: Spacing.four,
-    height: 44,
-    borderRadius: Radius.pill,
-    marginTop: Spacing.three,
+    gap: Spacing.one,
+    marginTop: Spacing.two,
+  },
+  player: {
+    flexBasis: '100%',
   },
   row: {
     flexDirection: 'row',

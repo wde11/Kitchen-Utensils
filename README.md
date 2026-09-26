@@ -76,6 +76,8 @@ EXPO_PUBLIC_API_URL=http://192.168.x.x/Kitchen-Utensils/api
 
 Until credentials are set, the app shows a friendly "Connect Spotify" card instead.
 
+**Playback:** the Tunes card includes Spotify's official embed player (a WebView on phones, an iframe on web). It plays the full song for listeners logged in to Spotify in that browser and a 30-second preview otherwise; "Open in Spotify" hands off to the Spotify app for full playback.
+
 > **Note:** the app uses Spotify's Client Credentials flow directly from the app, so the client secret ends up inside the app bundle. That's fine for a class project or demo, but for a public release move the token request into the PHP API so the secret stays on the server.
 
 ## 4. Deploy the web app to Vercel
