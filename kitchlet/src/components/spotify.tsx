@@ -26,7 +26,7 @@ export function SoundtrackWidget() {
     subtitle = 'Connect Spotify in src/config.ts';
   } else if (state.status === 'no-track') {
     title = 'Pick a cooking soundtrack';
-    subtitle = 'Paste a track ID in src/config.ts';
+    subtitle = 'Play your favorite songs from Spotify';
   } else if (state.status === 'error') {
     title = "Couldn't load your soundtrack";
     subtitle = state.message;
@@ -153,7 +153,7 @@ export function SpotifySetupCard({ missing, onRetry, error }: { missing: 'creden
     },
     track: {
       title: 'Choose your featured song',
-      // body: 'Paste a Spotify track ID or link into SPOTIFY.featuredTrack in kitchlet/src/config.ts. You can still search for any song below.',
+       body: 'Paste a Spotify track ID or link into the search bar below.',
     }, 
 
     error: {
