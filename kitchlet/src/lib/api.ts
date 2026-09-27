@@ -2,6 +2,7 @@ import type { ImagePickerAsset } from 'expo-image-picker';
 import { Platform } from 'react-native';
 
 import { API_URL } from '@/config';
+import { appendImage } from '@/lib/append-image';
 
 export const CATEGORIES = [
   'Cookware',
@@ -65,8 +66,12 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
       headers: { Accept: 'application/json', ...init.headers },
       signal: controller.signal,
     });
-  } catch {
-    throw new ApiError(unreachableMessage(), 0);
+  } catch (e) {
+    const message = e instanceof Error ? e.message : String(e);
+    // Only real connectivity failures mean the server is unreachable; anything else (e.g. a request
+    // body the fetch implementation rejects) is reported as-is so it isn't mistaken for a network problem.
+    const isNetworkFailure = controller.signal.aborted || /network|fetch|connect|timed? ?out|offline|host/i.test(message);
+    throw new ApiError(isNetworkFailure ? unreachableMessage() : `Couldn't send the request: ${message}`, 0);
   } finally {
     clearTimeout(timeout);
   }
@@ -104,14 +109,7 @@ async function toFormData(input: UtensilInput, asset: ImagePickerAsset) {
     form.append(key, String(value));
   }
 
-  const name = asset.fileName ?? `utensil-${Date.now()}.jpg`;
-  if (Platform.OS === 'web') {
-    const blob = asset.file ?? (await (await fetch(asset.uri)).blob());
-    form.append('image', blob, name);
-  } else {
-    // React Native's FormData uploads a file from its local URI.
-    form.append('image', { uri: asset.uri, name, type: asset.mimeType ?? 'image/jpeg' } as unknown as Blob);
-  }
+  await appendImage(form, asset, asset.fileName ?? `utensil-${Date.now()}.jpg`);
   return form;
 }
 
