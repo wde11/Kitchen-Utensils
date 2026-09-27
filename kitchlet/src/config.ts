@@ -39,5 +39,5 @@ export const SPOTIFY = {
   clientId: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_ID || 'YOUR_SPOTIFY_CLIENT_ID',
   clientSecret: process.env.EXPO_PUBLIC_SPOTIFY_CLIENT_SECRET || '33e2804035ae4350a0711f9e39e682ef',
   // 🎵 PLACEHOLDER: the specific song shown as your kitchen soundtrack.
-  featuredTrack: process.env.EXPO_PUBLIC_SPOTIFY_TRACK_ID || 'https://open.spotify.com/track/2e6soczRbcYbU4gzPN3xwk?si=34ad5e86e0e54366',
+  featuredTrack: process.env.EXPO_PUBLIC_SPOTIFY_TRACK_ID || 'YOUR_SPOTIFY_TRACK_ID',
 };
