@@ -27,6 +27,9 @@ import { useTheme } from '@/hooks/use-theme';
 import { CATEGORIES, type Category } from '@/lib/api';
 
 const GAP = 14;
+const FAB_SIZE = 60;
+/** Height of the floating "New utensil" button plus breathing room, reserved at the end of the list. */
+const FAB_SPACE = FAB_SIZE + Spacing.four;
 
 export default function KitchenScreen() {
   const theme = useTheme();
@@ -62,7 +65,6 @@ export default function KitchenScreen() {
           accessibilityRole="header"
           accessibilityLabel="Kitchlet"
         />
-        <IconButton icon="add" variant="tint" size={50} accessibilityLabel="Add utensil" onPress={() => router.push('/utensil/form')} />
       </View>
 
       <View style={styles.stats}>
@@ -194,9 +196,14 @@ export default function KitchenScreen() {
           width: contentWidth,
           alignSelf: 'center',
           paddingHorizontal: padding,
-          paddingBottom: insets.bottom + BottomTabInset + Spacing.four,
+          paddingBottom: insets.bottom + BottomTabInset + FAB_SPACE + Spacing.four,
         }}
       />
+
+      {/* Floating add button: stays pinned above the tab bar while the list scrolls. */}
+      <View style={[styles.fabHost, { bottom: insets.bottom + BottomTabInset + Spacing.one }]}>
+        <IconButton icon="add" variant="tint" size={FAB_SIZE} accessibilityLabel="New utensil" onPress={() => router.push('/utensil/form')} />
+      </View>
     </View>
   );
 }
@@ -235,6 +242,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: Spacing.three,
+  },
+  fabHost: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    pointerEvents: 'box-none',
   },
   logo: {
     width: 200,

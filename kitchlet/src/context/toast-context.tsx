@@ -8,7 +8,10 @@ import { ThemedText } from '@/components/themed-text';
 import { BottomTabInset, Radius, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 
-type Toast = { id: number; message: string; icon: IconName };
+/** Sits above the Kitchen screen's floating "New utensil" button (60pt tall). */
+const TOAST_LIFT = 60 + Spacing.four;
+
+type Toast ={ id: number; message: string; icon: IconName };
 type ShowToast = (message: string, icon?: IconName) => void;
 
 const ToastContext = createContext<ShowToast | null>(null);
@@ -28,7 +31,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
   return (
     <ToastContext value={show}>
       {children}
-      <View style={[styles.host,{ bottom: insets.bottom + BottomTabInset + Spacing.three }]}>
+      <View style={[styles.host,{ bottom: insets.bottom + BottomTabInset + TOAST_LIFT }]}>
         {toast && (
           <Animated.View
             key={toast.id}
