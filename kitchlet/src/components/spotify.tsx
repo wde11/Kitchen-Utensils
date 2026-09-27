@@ -149,12 +149,13 @@ export function SpotifySetupCard({ missing, onRetry, error }: { missing: 'creden
   const content = {
     credentials: {
       title: 'Connect Spotify',
-      body: 'Create an app at developer.spotify.com/dashboard, then paste its Client ID and Client Secret into kitchlet/src/config.ts (or .env.local).',
+      // body: 'Create an app at developer.spotify.com/dashboard, then paste its Client ID and Client Secret into kitchlet/src/config.ts (or .env.local).',
     },
     track: {
       title: 'Choose your featured song',
-      body: 'Paste a Spotify track ID or link into SPOTIFY.featuredTrack in kitchlet/src/config.ts. You can still search for any song below.',
-    },
+      // body: 'Paste a Spotify track ID or link into SPOTIFY.featuredTrack in kitchlet/src/config.ts. You can still search for any song below.',
+    }, 
+
     error: {
       title: "Couldn't load the featured song",
       body: error ?? 'Something went wrong while talking to Spotify.',
